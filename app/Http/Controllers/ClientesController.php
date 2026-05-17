@@ -67,7 +67,7 @@ class ClienteController extends Controller
      * Atualizar cliente
      */
     public function update(
-        UpdateClienteRequest $request,
+ UpdateClienteRequest $request,
         Cliente $cliente
     ) {
 
@@ -91,7 +91,7 @@ class ClienteController extends Controller
      */
     public function destroy(Cliente $cliente)
     {
-        $cliente->delete();
+        $cliente->deleteOrFail();
 
         return redirect()
             ->back()

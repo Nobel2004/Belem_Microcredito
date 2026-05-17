@@ -2,64 +2,44 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Pagamentos;
-use Illuminate\Http\Request;
+use App\Http\Requests\StorePagamentoRequest;
+use App\Models\Emprestimo;
+use App\Models\Emprestimos;
+use App\Services\PagamentoService;
 
-class PagamentosController extends Controller
+class PagamentoController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    protected PagamentoService $service;
+
+    public function __construct(PagamentoService $service)
     {
-        //
+        $this->service = $service;
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Registar pagamento de um empréstimo.
      */
-    public function create()
-    {
-        //
-    }
+    public function store(
+        StorePagamentoRequest $request,
+        Emprestimos $emprestimo
+    ) {
+        try {
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
+            /** @var \App\Models\User $user */
+            $user = auth()->user();
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Pagamentos $pagamentos)
-    {
-        //
-    }
+            $this->service->pagar(
+                $emprestimo,
+                $request->validated(),
+                $user->id
+            );
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Pagamentos $pagamentos)
-    {
-        //
-    }
+            return back()->with('success', 'Pagamento registado com sucesso');
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Pagamentos $pagamentos)
-    {
-        //
-    }
+        } catch (\Exception $e) {
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Pagamentos $pagamentos)
-    {
-        //
+            return back()->withErrors(['error' => $e->getMessage()]);
+
+        }
     }
 }

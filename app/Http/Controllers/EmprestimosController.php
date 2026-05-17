@@ -2,64 +2,111 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreEmprestimoRequest;
+use App\Models\Cliente;
+use App\Models\Emprestimo;
 use App\Models\Emprestimos;
-use Illuminate\Http\Request;
+use App\Services\EmprestimoService;
+use Inertia\Inertia;
 
-class EmprestimosController extends Controller
+class EmprestimoController extends Controller
 {
+    protected EmprestimoService $service;
+
+    public function __construct(EmprestimoService $service)
+    {
+        $this->service = $service;
+    }
+
     /**
-     * Display a listing of the resource.
+     * Listar todos os empréstimos com o cliente associado.
      */
     public function index()
     {
-        //
+        return Inertia::render('Emprestimos/Index', [
+            'emprestimos' => Emprestimos::with('cliente')
+                ->latest()
+                ->paginate(10),
+        ]);
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Formulário de criação — passa clientes e taxa de juros ao frontend.
      */
     public function create()
     {
-        //
+        return Inertia::render('Emprestimos/Create', [
+            'clientes'   => Cliente::all(),
+            'taxa_juros' => $this->service->getTaxaJuros(),
+        ]);
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Criar empréstimo — delega regras de negócio ao Service.
      */
-    public function store(Request $request)
+    public function store(StoreEmprestimoRequest $request)
     {
-        //
+        try {
+
+            $this->service->criar(
+                $request->validated(),
+                auth()->id()
+            );
+
+            return redirect()
+                ->route('emprestimos.index')
+                ->with('success', 'Empréstimo criado com sucesso');
+
+        } catch (\Exception $e) {
+
+            return back()->withErrors(['error' => $e->getMessage()]);
+
+        }
     }
 
     /**
-     * Display the specified resource.
+     * Aprovar empréstimo.
      */
-    public function show(Emprestimos $emprestimos)
+    public function aprovar(Emprestimos $emprestimo)
     {
-        //
+        try {
+
+            $this->service->aprovar($emprestimo);
+
+            return back()->with('success', 'Empréstimo aprovado');
+
+        } catch (\Exception $e) {
+
+            return back()->withErrors(['error' => $e->getMessage()]);
+
+        }
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Rejeitar empréstimo.
      */
-    public function edit(Emprestimos $emprestimos)
+    public function rejeitar(Emprestimos $emprestimo)
     {
-        //
+        try {
+
+            $this->service->rejeitar($emprestimo);
+
+            return back()->with('success', 'Empréstimo rejeitado');
+
+        } catch (\Exception $e) {
+
+            return back()->withErrors(['error' => $e->getMessage()]);
+
+        }
     }
 
     /**
-     * Update the specified resource in storage.
+     * Remover empréstimo.
      */
-    public function update(Request $request, Emprestimos $emprestimos)
+    public function destroy(Emprestimos $emprestimo)
     {
-        //
-    }
+        $emprestimo->deleteOrFail();
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Emprestimos $emprestimos)
-    {
-        //
+        return back()->with('success', 'Empréstimo removido');
     }
 }

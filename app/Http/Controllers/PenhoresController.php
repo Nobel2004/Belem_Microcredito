@@ -2,64 +2,31 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Penhores;
+use App\Models\Emprestimo;
+use App\Models\Emprestimos;
+use App\Services\PenhorService;
 use Illuminate\Http\Request;
 
-class PenhoresController extends Controller
+class PenhorController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        //
+    protected $service;
+
+    public function __construct(
+        PenhorService $service
+    ) {
+        $this->service = $service;
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
+    public function store(
+        Request $request,
+        Emprestimos $emprestimo
+    ) {
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
+        $this->service->criar(
+            $emprestimo,
+            $request->all()
+        );
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Penhores $penhores)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Penhores $penhores)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Penhores $penhores)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Penhores $penhores)
-    {
-        //
+        return back();
     }
 }
