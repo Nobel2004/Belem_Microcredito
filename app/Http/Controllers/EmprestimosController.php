@@ -8,11 +8,7 @@ use App\Models\Emprestimos;
 use App\Services\EmprestimoService;
 use Inertia\Inertia;
 
-class EmprestimoController extends Controller
-{
-    public function __construct(
-        protected EmprestimoService $service
-    ) {}
+
 
     public function index()
     {
