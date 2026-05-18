@@ -2,64 +2,25 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Parcelas;
-use Illuminate\Http\Request;
+use App\Models\Parcela;
+use App\Services\ParcelaService;
 
-class ParcelasController extends Controller
+class ParcelaController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        //
-    }
+    public function __construct(
+        protected ParcelaService $service
+    ) {}
 
     /**
-     * Show the form for creating a new resource.
+     * Pagar uma parcela específica.
      */
-    public function create()
+    public function pagar(Parcela $parcela)
     {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(Parcelas $parcelas)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Parcelas $parcelas)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Parcelas $parcelas)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Parcelas $parcelas)
-    {
-        //
+        try {
+            $this->service->pagar($parcela);
+            return back()->with('success', 'Parcela paga com sucesso');
+        } catch (\Exception $e) {
+            return back()->withErrors(['error' => $e->getMessage()]);
+        }
     }
 }

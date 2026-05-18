@@ -9,43 +9,23 @@ use Inertia\Inertia;
 
 class ClienteController extends Controller
 {
-    /**
-     * Listar clientes
-     */
     public function index()
     {
-        $clientes = Cliente::query()
-            ->latest()
-            ->paginate(10);
-
         return Inertia::render('Clientes/Index', [
-            'clientes' => $clientes
+            'clientes' => Cliente::latest()->paginate(10),
         ]);
     }
 
-    /**
-     * Formulário de criação
-     */
     public function create()
     {
         return Inertia::render('Clientes/Create');
     }
 
-    /**
-     * Salvar cliente
-     */
     public function store(StoreClienteRequest $request)
     {
         Cliente::create([
-
-            'nome' => $request->nome,
-            'bi' => $request->bi,
-            'telefone' => $request->telefone,
-            'endereco' => $request->endereco,
-            'renda_mensal' => $request->renda_mensal,
-
-            'created_by' => auth()->id()
-
+            ...$request->validated(),
+            'created_by' => auth()->id(),
         ]);
 
         return redirect()
@@ -53,48 +33,26 @@ class ClienteController extends Controller
             ->with('success', 'Cliente criado com sucesso');
     }
 
-    /**
-     * Formulário de edição
-     */
     public function edit(Cliente $cliente)
     {
         return Inertia::render('Clientes/Edit', [
-            'cliente' => $cliente
+            'cliente' => $cliente,
         ]);
     }
 
-    /**
-     * Atualizar cliente
-     */
-    public function update(
- UpdateClienteRequest $request,
-        Cliente $cliente
-    ) {
-
-        $cliente->update([
-
-            'nome' => $request->nome,
-            'bi' => $request->bi,
-            'telefone' => $request->telefone,
-            'endereco' => $request->endereco,
-            'renda_mensal' => $request->renda_mensal,
-
-        ]);
+    public function update(UpdateClienteRequest $request, Cliente $cliente)
+    {
+        $cliente->update($request->validated());
 
         return redirect()
             ->route('clientes.index')
-            ->with('success', 'Cliente atualizado');
+            ->with('success', 'Cliente actualizado');
     }
 
-    /**
-     * Remover cliente
-     */
     public function destroy(Cliente $cliente)
     {
         $cliente->deleteOrFail();
 
-        return redirect()
-            ->back()
-            ->with('success', 'Cliente removido');
+        return back()->with('success', 'Cliente removido');
     }
 }
